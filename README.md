@@ -19,7 +19,8 @@ This repository contains scripts to manage the setup and teardown of a game stre
 - [Scripts](#scripts)
   - [`start_streaming`](#start_streaming)
   - [`stop_streaming`](#stop_streaming)
-  - [`IddSampleDriver/option.txt`](#iddsampledriveroptiontxt)
+  - [`VirtualDisplayDriver/vdd_settings.xml`](#virtualdisplaydrivervdd_settingsxml)
+  - [`IddSampleDriver/option.txt` (legacy)](#iddsampledriveroptiontxt-legacy)
 - [Attributions](#attributions)
 
 ## Introduction
@@ -44,7 +45,8 @@ All required tools, except the virtual display driver, are bundled and available
 
 ### Required Tools
 
-1. **[Virtual-Display-Driver](https://github.com/itsmikethetech/Virtual-Display-Driver)** - A virtual display driver that enables a virtual monitor for streaming. Follow the installation instructions on their [GitHub page](https://github.com/itsmikethetech/Virtual-Display-Driver?tab=readme-ov-file#installation). **Important**: Ensure the provided [option.txt](IddSampleDriver/option.txt) file is placed at `C:\IddSampleDriver\option.txt` before installing.
+1. **[Virtual-Display-Driver](https://github.com/itsmikethetech/Virtual-Display-Driver)** - A virtual display driver that enables a virtual monitor for streaming.
+   - Follow the installation instructions on their [GitHub page](https://github.com/VirtualDrivers/Virtual-Display-Driver?tab=readme-ov-file#%EF%B8%8F-installation). Verified with VDD `25.7.23` (latest at the time of writing).
 2. **[QRes](https://sourceforge.net/projects/qres/)** - A tool to set display resolution and refresh rate.
 3. **[HDRTray](https://github.com/res2k/HDRTray)** - A command-line tool for toggling HDR.
 4. **[gsync-toggle](https://github.com/FrogTheFrog/gsync-toggle)** - A tool for toggling G-Sync on and off.
@@ -89,7 +91,7 @@ This setup will automate the execution of the scripts whenever Moonlight starts 
 
 ### Set Virtual Display as Main Display
 
-After installing the **Virtual Display Driver**, you will need to set the virtual display as your main display in Windows **Display Settings**. This step ensures that Windows automatically switches between the virtual display (during streaming) and your primary display (when not streaming). This setup is only needed once.
+After installing and configuring the **Virtual Display Driver**, you will need to set the virtual display as your main display in Windows **Display Settings**. This step ensures that Windows automatically switches between the virtual display (during streaming) and your primary display (when not streaming). This setup is only needed once, regardless of whether Windows shows the device under a newer VDD name or the older `IddSampleDriver Device HDR` name.
 
 To set the virtual display as the main display:
 1. Open **Settings** > **System** > **Display**.
@@ -127,6 +129,7 @@ This script is automatically triggered by the Sunshine server when Moonlight sta
 
 #### Actions performed:
 - Enables the virtual display.
+  - Looks up the VDD device by the optional `VDD_DISPLAY_NAME` value first, then falls back to the built-in compatible names.
 - Sets the resolution and refresh rate with `QRes` based on the Moonlight client’s settings.
 - Toggles HDR on/off using `HDRTray`.
 - Disables G-Sync for the streaming session using `gsync-toggle`.
@@ -141,6 +144,7 @@ This script is automatically triggered by the Sunshine server when Moonlight sta
 - **FPS** - The FPS limit for the stream. **Default:** 60, or the target FPS passed by the Moonlight client.
 - **HDR** - Whether to enable HDR. **Default:** false, or the HDR setting passed by the Moonlight client.
 - **USE_RTSS** - Whether to use RTSS for FPS limiting and turn off its overlay while streaming. **Default:** false.
+- **VDD_DISPLAY_NAME** - Optional VDD friendly name to try first when locating the virtual display device. If no match is found, the script falls back to the built-in lookup. **Default:** empty.
 - **DEBUG** - Whether to enable debug mode and view additional information. **Default:** false.
 
 ---
@@ -155,6 +159,7 @@ This script is automatically triggered by the Sunshine server when Moonlight sto
 
 #### Actions performed:
 - Disables the virtual display.
+  - Looks up the VDD device by the optional `VDD_DISPLAY_NAME` value first, then falls back to the built-in compatible names.
 - Restores the resolution and refresh rate for your primary display.
 - Toggles HDR off using `HDRTray`.
 - Re-enables G-Sync using `gsync-toggle`.
@@ -169,13 +174,18 @@ This script is automatically triggered by the Sunshine server when Moonlight sto
 - **FPS** - The FPS limit for non-streaming gameplay. **Default:** Refresh rate - 3, as recommended for variable refresh rate displays.
 - **HDR** - Whether to enable HDR. **Default:** false.
 - **USE_RTSS** - Whether to restore the FPS limit set in RTSS. Keeps the overlay disabled regardless of the parameter value. **Default:** false.
+- **VDD_DISPLAY_NAME** - Optional VDD friendly name to try first when locating the virtual display device. If no match is found, the script falls back to the built-in lookup. **Default:** empty.
 - **DEBUG** - Whether to enable debug mode and view additional information. **Default:** false.
 
 ---
 
-### `IddSampleDriver/option.txt`
+### `VirtualDisplayDriver/vdd_settings.xml`
 
-This file defines the supported resolutions and refresh rates for the virtual display used during streaming. Ensure it is placed at `C:\IddSampleDriver\option.txt` before installing the [Virtual Display Driver](https://github.com/itsmikethetech/Virtual-Display-Driver). You may edit the file as needed to match your client device's supported resolutions and refresh rates. Some common resolutions and refresh rates are already included for convenience.
+This is the primary Virtual Display Driver configuration used by this repository. It defines the virtual monitor count, GPU selection, supported resolutions and refresh rates, and VDD options such as HDR-related behavior and logging. Place it in the location expected by your installed [Virtual Display Driver](https://github.com/itsmikethetech/Virtual-Display-Driver) version, and edit it as needed to match the stream modes you want available in Moonlight.
+
+### `IddSampleDriver/option.txt` (legacy)
+
+For older VDD releases only, the repository also includes `option.txt` as a legacy configuration example. Use that file only if you are deliberately following the old `option.txt`-based setup. It is deprecated for this repo's primary workflow, which now uses `vdd_settings.xml`.
 
 ---
 

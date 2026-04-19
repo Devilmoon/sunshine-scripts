@@ -9,6 +9,7 @@ param(
     [int] $FPS = 0,
     [string] $HDR = "false",
     [string] $USE_RTSS = "false",
+    [string] $VDD_DISPLAY_NAME = "",
     [string] $DEBUG = "false"
 )
 
@@ -22,6 +23,41 @@ $CLIENT_HDR = if ($null -ne $Env:SUNSHINE_CLIENT_HDR) { $Env:SUNSHINE_CLIENT_HDR
 # by the FPS parameter, to customize a limit independent from the refresh rate.
 # This can be useful, for example, to run a game at 40 FPS on a 120 Hz display.
 $LIMIT = if ($FPS -eq 0) { $CLIENT_REFRESH } else { $FPS }
+
+function Resolve-VddDevice {
+    param(
+        [string] $PreferredName,
+        [string[]] $FallbackNames
+    )
+
+    $allVddDevices = Get-PnpDevice | Where-Object { $null -ne $_.FriendlyName }
+
+    if (-not [string]::IsNullOrWhiteSpace($PreferredName)) {
+        $matchingDevices = @($allVddDevices | Where-Object { $_.FriendlyName -eq $PreferredName })
+        if ($matchingDevices.Count -gt 1) {
+            Write-Output "Error: Multiple devices matched the custom VDD display name '$PreferredName'. Exiting script."
+            exit
+        }
+        if ($matchingDevices.Count -eq 1) {
+            Write-Output "Found VDD device using custom friendly name: $PreferredName"
+            return $matchingDevices[0]
+        }
+    }
+
+    foreach ($name in $FallbackNames) {
+        $matchingDevices = @($allVddDevices | Where-Object { $_.FriendlyName -like "*$name*" })
+        if ($matchingDevices.Count -gt 1) {
+            Write-Output "Error: Multiple devices matched the known VDD display name '$name'. Exiting script."
+            exit
+        }
+        if ($matchingDevices.Count -eq 1) {
+            Write-Output "Found VDD device using known friendly name: $($matchingDevices[0].FriendlyName)"
+            return $matchingDevices[0]
+        }
+    }
+
+    return $null
+}
 
 # Restart script with elevated privileges if not already admin
 if (-not ([Security.Principal.WindowsPrincipal]::new(
@@ -43,11 +79,22 @@ if (-not ([Security.Principal.WindowsPrincipal]::new(
 # Enable the virtual display
 Write-Output "Enabling virtual display..."
 
-# Search for the VDD device with one of the known friendly names
-$device = Get-PnpDevice | Where-Object {
-    $_.FriendlyName -like "*Virtual Display Driver*" -or
-    $_.FriendlyName -like "*IddSampleDriver Device HDR*"
+$knownVddDisplayNames = @(
+    "Virtual Display Driver",
+    "IddSampleDriver Device HDR"
+)
+
+$customVddDisplayName = ""
+if (-not [string]::IsNullOrWhiteSpace($VDD_DISPLAY_NAME)) {
+    $customVddDisplayName = $VDD_DISPLAY_NAME.Trim()
 }
+
+if (-not [string]::IsNullOrWhiteSpace($customVddDisplayName)) {
+    Write-Output "Looking for VDD device using custom friendly name first: $customVddDisplayName"
+}
+Write-Output "Falling back to known VDD friendly names if needed: $($knownVddDisplayNames -join ', ')"
+
+$device = Resolve-VddDevice -PreferredName $customVddDisplayName -FallbackNames $knownVddDisplayNames
 
 # Enable the device if found; otherwise, stop the script
 if ($device) {

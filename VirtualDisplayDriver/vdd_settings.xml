@@ -4,7 +4,7 @@
         <count>1</count>
     </monitors>
     <gpu>
-        <friendlyname>Best GPU (Auto)</friendlyname>
+        <friendlyname>default</friendlyname>
     </gpu>
 	<global>
 		<!--These are global refresh rates, any you add in here, will be replicated to all resolutions-->
