@@ -22,6 +22,7 @@ This repository contains scripts to manage the setup and teardown of a game stre
   - [`VirtualDisplayDriver/vdd_settings.xml`](#virtualdisplaydrivervdd_settingsxml)
   - [`IddSampleDriver/option.txt` (legacy)](#iddsampledriveroptiontxt-legacy)
 - [Attributions](#attributions)
+- [AI Contributions](#ai-contributions)
 
 ## Introduction
 
@@ -207,3 +208,15 @@ And of course:
 - **[RTSS (RivaTuner Statistics Server)](https://www.guru3d.com/files-details/rtss-rivatuner-statistics-server-download.html)** - For providing a universal tool for managing FPS limits and on-screen overlays.
 
 Without these excellent tools, this project would not be possible. I’m merely providing the glue that makes these tools work together for an enhanced game streaming experience.
+
+---
+
+## AI Contributions
+
+I see real value in AI-assisted contributions, I accept them, and I encourage them for repetitive tasks, documentation updates, and script-heavy work. The presence of [`AGENTS.md`](AGENTS.md) in this repository is intentional.
+
+The main caveat is that this project interacts with real physical hardware that people use in their own setups. Validation is more complex than in a typical web or Python project, and end-to-end verification under Sunshine, Moonlight, Windows display handling, GPU drivers, and Virtual Display Driver behavior cannot always be automated. AI contributors must be truthful about what they actually validated versus what they only reviewed statically.
+
+Human verification and sign-off for AI-assisted work is preferred, but it is not a hard gate. At the end of the day, I reserve the right to decide what can or cannot be merged, and I may personally verify changes against my test setup. That is not AI discrimination, it is a reasonable boundary given present-day limitations.
+
+AI behavior in issues, pull requests, reviews, and other GitHub interactions will be judged by the same standards as human behavior and must remain respectful.
